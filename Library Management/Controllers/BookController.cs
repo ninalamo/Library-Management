@@ -11,12 +11,28 @@ namespace Library_Management.Controllers
             return View(books);
         }
 
-        public IActionResult Add()
+        public IActionResult AddModal()
         {
-            return View();
+            return PartialView ("_AddBookPartial");
         }
 
-     
+
+        [HttpPost]
+        public IActionResult Add(AddBookViewModel vm)
+        {
+            if (!ModelState.IsValid)
+            {
+                // If model state is not valid, you can return a view with validation errors
+                return BadRequest(ModelState);
+            }
+
+            // Assuming BookService has a method to update the book
+            BookService.Instance.AddBook(vm);
+
+            return Ok();
+        }
+
+
         public IActionResult EditModal(Guid id)
         {
             var editBookViewModel = BookService.Instance.GetBookById(id);
