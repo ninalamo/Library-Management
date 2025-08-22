@@ -177,7 +177,7 @@ public class BookService
                 ProfileImageUrl = "https://example.com/shelley.jpg",
                 Books = new List<Book>()
             },
-            Book = new Book
+            Book = new Book                        
             {
                 Id = Guid.NewGuid(),
                 Title = "Frankenstein",
