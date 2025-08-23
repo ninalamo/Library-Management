@@ -1,0 +1,277 @@
+@model IEnumerable<Library_Management.Models.MovieListViewModel>
+@{
+    ViewData["Title"] = "CineStream - Your Movie Destination";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    
+    var featuredMovies = ViewBag.FeaturedMovies as List<Library_Management.Models.MovieListViewModel>;
+    var trendingMovies = ViewBag.TrendingMovies as List<Library_Management.Models.MovieListViewModel>;
+    var topRatedMovies = ViewBag.TopRatedMovies as List<Library_Management.Models.MovieListViewModel>;
+    var heroMovie = featuredMovies?.FirstOrDefault() ?? Model.FirstOrDefault();
+}
+
+<!-- Hero Section -->
+@if (heroMovie != null)
+{
+    <section class="hero-section" style="background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.7)), url('@heroMovie.BackdropUrl');">
+        <div class="hero-content">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-6 col-md-8">
+                        <div class="hero-info">
+                            <h1 class="hero-title">@heroMovie.Title</h1>
+                            <div class="hero-meta">
+                                <span class="rating">
+                                    <i class="fas fa-star"></i>
+                                    @heroMovie.AverageRating.ToString("0.0")
+                                </span>
+                                <span class="year">@heroMovie.ReleaseDate?.Year</span>
+                                <span class="runtime">@heroMovie.FormattedRuntime</span>
+                                <span class="genre">@heroMovie.Genre</span>
+                            </div>
+                            <p class="hero-description">@heroMovie.Description</p>
+                            <div class="hero-buttons">
+                                <a href="/Movie/Details/@heroMovie.MovieId" class="btn btn-primary btn-lg">
+                                    <i class="fas fa-play"></i> Watch Now
+                                </a>
+                                <button class="btn btn-secondary btn-lg" onclick="showMovieInfo('@heroMovie.MovieId')">
+                                    <i class="fas fa-info-circle"></i> More Info
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+}
+
+<!-- Search Section -->
+<section class="search-section">
+    <div class="container">
+        <div class="search-bar">
+            <input type="text" id="searchInput" class="form-control" placeholder="Search for movies..." value="@ViewBag.SearchTerm">
+            <button id="searchBtn" class="btn btn-search">
+                <i class="fas fa-search"></i>
+            </button>
+        </div>
+    </div>
+</section>
+
+<!-- Movie Categories -->
+<div class="container-fluid movie-categories">
+    
+    <!-- Featured Movies -->
+    @if (featuredMovies?.Any() == true)
+    {
+        <div class="movie-row">
+            <h2 class="row-title">Featured Movies</h2>
+            <div class="movie-carousel" id="featuredCarousel">
+                <div class="carousel-container">
+                    <button class="carousel-btn prev" onclick="scrollCarousel('featuredCarousel', -1)">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <div class="movie-slider">
+                        @foreach (var movie in featuredMovies)
+                        {
+                            <div class="movie-card" data-movie-id="@movie.MovieId">
+                                <div class="movie-poster">
+                                    <img src="@movie.PosterUrl" alt="@movie.Title" loading="lazy">
+                                    <div class="movie-overlay">
+                                        <div class="movie-info">
+                                            <h4>@movie.Title</h4>
+                                            <div class="movie-meta">
+                                                <span class="rating">
+                                                    <i class="fas fa-star"></i>
+                                                    @movie.AverageRating.ToString("0.0")
+                                                </span>
+                                                <span>@movie.ReleaseDate?.Year</span>
+                                            </div>
+                                            <div class="movie-actions">
+                                                <a href="/Movie/Details/@movie.MovieId" class="btn btn-sm btn-primary">
+                                                    <i class="fas fa-play"></i>
+                                                </a>
+                                                <button class="btn btn-sm btn-secondary" onclick="addToFavorites('@movie.MovieId')">
+                                                    <i class="fas fa-heart"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                    <button class="carousel-btn next" onclick="scrollCarousel('featuredCarousel', 1)">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Trending Movies -->
+    @if (trendingMovies?.Any() == true)
+    {
+        <div class="movie-row">
+            <h2 class="row-title">Trending Now</h2>
+            <div class="movie-carousel" id="trendingCarousel">
+                <div class="carousel-container">
+                    <button class="carousel-btn prev" onclick="scrollCarousel('trendingCarousel', -1)">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <div class="movie-slider">
+                        @foreach (var movie in trendingMovies)
+                        {
+                            <div class="movie-card" data-movie-id="@movie.MovieId">
+                                <div class="movie-poster">
+                                    <img src="@movie.PosterUrl" alt="@movie.Title" loading="lazy">
+                                    <div class="movie-overlay">
+                                        <div class="movie-info">
+                                            <h4>@movie.Title</h4>
+                                            <div class="movie-meta">
+                                                <span class="rating">
+                                                    <i class="fas fa-star"></i>
+                                                    @movie.AverageRating.ToString("0.0")
+                                                </span>
+                                                <span>@movie.ReleaseDate?.Year</span>
+                                            </div>
+                                            <div class="movie-actions">
+                                                <a href="/Movie/Details/@movie.MovieId" class="btn btn-sm btn-primary">
+                                                    <i class="fas fa-play"></i>
+                                                </a>
+                                                <button class="btn btn-sm btn-secondary" onclick="addToFavorites('@movie.MovieId')">
+                                                    <i class="fas fa-heart"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                    <button class="carousel-btn next" onclick="scrollCarousel('trendingCarousel', 1)">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Top Rated Movies -->
+    @if (topRatedMovies?.Any() == true)
+    {
+        <div class="movie-row">
+            <h2 class="row-title">Top Rated</h2>
+            <div class="movie-carousel" id="topRatedCarousel">
+                <div class="carousel-container">
+                    <button class="carousel-btn prev" onclick="scrollCarousel('topRatedCarousel', -1)">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <div class="movie-slider">
+                        @foreach (var movie in topRatedMovies)
+                        {
+                            <div class="movie-card" data-movie-id="@movie.MovieId">
+                                <div class="movie-poster">
+                                    <img src="@movie.PosterUrl" alt="@movie.Title" loading="lazy">
+                                    <div class="movie-overlay">
+                                        <div class="movie-info">
+                                            <h4>@movie.Title</h4>
+                                            <div class="movie-meta">
+                                                <span class="rating">
+                                                    <i class="fas fa-star"></i>
+                                                    @movie.AverageRating.ToString("0.0")
+                                                </span>
+                                                <span>@movie.ReleaseDate?.Year</span>
+                                            </div>
+                                            <div class="movie-actions">
+                                                <a href="/Movie/Details/@movie.MovieId" class="btn btn-sm btn-primary">
+                                                    <i class="fas fa-play"></i>
+                                                </a>
+                                                <button class="btn btn-sm btn-secondary" onclick="addToFavorites('@movie.MovieId')">
+                                                    <i class="fas fa-heart"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                    <button class="carousel-btn next" onclick="scrollCarousel('topRatedCarousel', 1)">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- All Movies Grid (when searching or filtering) -->
+    @if (!string.IsNullOrEmpty(ViewBag.SearchTerm as string) || !string.IsNullOrEmpty(ViewBag.SelectedGenre as string))
+    {
+        <div class="movie-row">
+            <h2 class="row-title">
+                @if (!string.IsNullOrEmpty(ViewBag.SearchTerm as string))
+                {
+                    <text>Search Results for "@ViewBag.SearchTerm"</text>
+                }
+                else if (!string.IsNullOrEmpty(ViewBag.SelectedGenre as string))
+                {
+                    <text>@ViewBag.SelectedGenre Movies</text>
+                }
+            </h2>
+            <div class="movie-grid">
+                @foreach (var movie in Model)
+                {
+                    <div class="movie-card" data-movie-id="@movie.MovieId">
+                        <div class="movie-poster">
+                            <img src="@movie.PosterUrl" alt="@movie.Title" loading="lazy">
+                            <div class="movie-overlay">
+                                <div class="movie-info">
+                                    <h4>@movie.Title</h4>
+                                    <div class="movie-meta">
+                                        <span class="rating">
+                                            <i class="fas fa-star"></i>
+                                            @movie.AverageRating.ToString("0.0")
+                                        </span>
+                                        <span>@movie.ReleaseDate?.Year</span>
+                                    </div>
+                                    <div class="movie-actions">
+                                        <a href="/Movie/Details/@movie.MovieId" class="btn btn-sm btn-primary">
+                                            <i class="fas fa-play"></i>
+                                        </a>
+                                        <button class="btn btn-sm btn-secondary" onclick="addToFavorites('@movie.MovieId')">
+                                            <i class="fas fa-heart"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+</div>
+
+<!-- Admin Controls -->
+<div class="admin-controls">
+    <button class="btn btn-success" onclick="showAddMovieModal()">
+        <i class="fas fa-plus"></i> Add Movie
+    </button>
+</div>
+
+<!-- Modals -->
+<div class="modal fade" id="movieModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <!-- Modal content will be loaded here -->
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/movie-app.js"></script>
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/netflix-style.css">
+}

@@ -1,0 +1,354 @@
+@model Library_Management.Models.MovieDetailsViewModel
+@{
+    ViewData["Title"] = Model.Title + " - CineStream";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<!-- Movie Hero Section -->
+<div class="movie-hero" style="background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.8)), url('@Model.BackdropUrl');">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="movie-poster-large">
+                    <img src="@Model.PosterUrl" alt="@Model.Title" class="img-fluid rounded">
+                </div>
+            </div>
+            <div class="col-md-8">
+                <div class="movie-details">
+                    <h1 class="movie-title">@Model.Title</h1>
+                    
+                    <div class="movie-meta-info">
+                        <span class="rating-badge">
+                            <i class="fas fa-star"></i>
+                            <strong>@Model.AverageRating.ToString("0.0")</strong>
+                            (@Model.TotalRatings reviews)
+                        </span>
+                        <span class="year">@Model.ReleaseDate?.Year</span>
+                        <span class="runtime">@Model.FormattedRuntime</span>
+                        <span class="rating">@Model.ContentRating</span>
+                    </div>
+
+                    <div class="genre-tags">
+                        <span class="genre-tag">@Model.Genre</span>
+                    </div>
+
+                    <p class="movie-description">@Model.Description</p>
+
+                    <div class="movie-actions">
+                        @if (!string.IsNullOrEmpty(Model.TrailerUrl))
+                        {
+                            <a href="@Model.TrailerUrl" class="btn btn-primary btn-lg" target="_blank">
+                                <i class="fas fa-play"></i> Watch Trailer
+                            </a>
+                        }
+                        <button class="btn btn-outline-light btn-lg" onclick="showRatingModal('@Model.MovieId')">
+                            <i class="fas fa-star"></i> Rate Movie
+                        </button>
+                        <button class="btn btn-outline-light" onclick="addToFavorites('@Model.MovieId')">
+                            <i class="fas fa-heart"></i> Add to Favorites
+                        </button>
+                    </div>
+
+                    <!-- Admin Actions -->
+                    <div class="admin-actions mt-3">
+                        <button class="btn btn-warning btn-sm" onclick="showEditModal('@Model.MovieId')">
+                            <i class="fas fa-edit"></i> Edit
+                        </button>
+                        <button class="btn btn-danger btn-sm" onclick="showDeleteModal('@Model.MovieId')">
+                            <i class="fas fa-trash"></i> Delete
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Movie Information Tabs -->
+<div class="container movie-info-section">
+    <ul class="nav nav-tabs" id="movieTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="overview-tab" data-bs-toggle="tab" data-bs-target="#overview" type="button">
+                Overview
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="cast-tab" data-bs-toggle="tab" data-bs-target="#cast" type="button">
+                Cast & Crew
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="reviews-tab" data-bs-toggle="tab" data-bs-target="#reviews" type="button">
+                Reviews (@Model.Comments.Count)
+            </button>
+        </li>
+    </ul>
+
+    <div class="tab-content" id="movieTabsContent">
+        <!-- Overview Tab -->
+        <div class="tab-pane fade show active" id="overview" role="tabpanel">
+            <div class="row mt-4">
+                <div class="col-md-8">
+                    <h3>Synopsis</h3>
+                    <p>@Model.Description</p>
+                    
+                    <div class="movie-details-grid">
+                        <div class="detail-item">
+                            <strong>Release Date:</strong>
+                            @Model.ReleaseDate?.ToString("MMMM dd, yyyy")
+                        </div>
+                        <div class="detail-item">
+                            <strong>Runtime:</strong>
+                            @Model.FormattedRuntime
+                        </div>
+                        <div class="detail-item">
+                            <strong>Genre:</strong>
+                            @Model.Genre
+                        </div>
+                        <div class="detail-item">
+                            <strong>Language:</strong>
+                            @Model.Language
+                        </div>
+                        <div class="detail-item">
+                            <strong>Country:</strong>
+                            @Model.Country
+                        </div>
+                        <div class="detail-item">
+                            <strong>Content Rating:</strong>
+                            @Model.ContentRating
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="ratings-summary">
+                        <h4>Ratings Summary</h4>
+                        <div class="rating-display">
+                            <span class="average-rating">@Model.AverageRating.ToString("0.0")</span>
+                            <div class="stars">
+                                @for (int i = 1; i <= 5; i++)
+                                {
+                                    <i class="fas fa-star @(i <= Model.AverageRating ? "filled" : "")"></i>
+                                }
+                            </div>
+                            <p>Based on @Model.TotalRatings ratings</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cast & Crew Tab -->
+        <div class="tab-pane fade" id="cast" role="tabpanel">
+            <div class="row mt-4">
+                <div class="col-md-6">
+                    <h4>Directors</h4>
+                    <div class="cast-list">
+                        @foreach (var director in Model.Directors)
+                        {
+                            <div class="cast-member">
+                                <div class="cast-photo">
+                                    <img src="@director.ProfileImageUrl" alt="@director.Name" onerror="this.src='/images/default-person.jpg'">
+                                </div>
+                                <div class="cast-info">
+                                    <h5>@director.Name</h5>
+                                    <p class="role">Director</p>
+                                    @if (!string.IsNullOrEmpty(director.Nationality))
+                                    {
+                                        <p class="nationality">@director.Nationality</p>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <h4>Cast</h4>
+                    <div class="cast-list">
+                        @foreach (var actor in Model.Actors.OrderBy(a => a.Order))
+                        {
+                            <div class="cast-member">
+                                <div class="cast-photo">
+                                    <img src="@actor.ProfileImageUrl" alt="@actor.Name" onerror="this.src='/images/default-person.jpg'">
+                                </div>
+                                <div class="cast-info">
+                                    <h5>@actor.Name</h5>
+                                    <p class="role">@actor.Character</p>
+                                    @if (!string.IsNullOrEmpty(actor.Nationality))
+                                    {
+                                        <p class="nationality">@actor.Nationality</p>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reviews Tab -->
+        <div class="tab-pane fade" id="reviews" role="tabpanel">
+            <div class="mt-4">
+                <!-- Add Review Form -->
+                <div class="add-review-section">
+                    <h4>Add Your Review</h4>
+                    <form id="commentForm">
+                        <input type="hidden" id="movieId" value="@Model.MovieId" />
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="userName" class="form-label">Your Name</label>
+                                    <input type="text" class="form-control" id="userName" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="commentText" class="form-label">Your Review</label>
+                            <textarea class="form-control" id="commentText" rows="4" required placeholder="Share your thoughts about this movie..."></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-paper-plane"></i> Post Review
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Reviews List -->
+                <div class="reviews-list mt-5">
+                    <h4>User Reviews</h4>
+                    @if (Model.Comments.Any())
+                    {
+                        @foreach (var comment in Model.Comments.OrderByDescending(c => c.CreatedDate))
+                        {
+                            <div class="review-item">
+                                <div class="review-header">
+                                    <div class="reviewer-info">
+                                        <h5>@comment.UserName</h5>
+                                        <small class="text-muted">@comment.CreatedDate?.ToString("MMM dd, yyyy 'at' hh:mm tt")</small>
+                                    </div>
+                                </div>
+                                <div class="review-content">
+                                    <p>@comment.Text</p>
+                                </div>
+                                @if (comment.Replies.Any())
+                                {
+                                    <div class="review-replies">
+                                        @foreach (var reply in comment.Replies.OrderBy(r => r.CreatedDate))
+                                        {
+                                            <div class="reply-item">
+                                                <strong>@reply.UserName</strong>
+                                                <small class="text-muted">@reply.CreatedDate?.ToString("MMM dd, yyyy")</small>
+                                                <p>@reply.Text</p>
+                                            </div>
+                                        }
+                                    </div>
+                                }
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <p class="no-reviews">No reviews yet. Be the first to share your thoughts!</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Suggested Movies -->
+@if (Model.SuggestedMovies.Any())
+{
+    <div class="container-fluid suggested-movies">
+        <div class="container">
+            <h3>More Like This</h3>
+            <div class="movie-carousel" id="suggestedCarousel">
+                <div class="carousel-container">
+                    <button class="carousel-btn prev" onclick="scrollCarousel('suggestedCarousel', -1)">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <div class="movie-slider">
+                        @foreach (var movie in Model.SuggestedMovies)
+                        {
+                            <div class="movie-card" data-movie-id="@movie.MovieId">
+                                <div class="movie-poster">
+                                    <img src="@movie.PosterUrl" alt="@movie.Title" loading="lazy">
+                                    <div class="movie-overlay">
+                                        <div class="movie-info">
+                                            <h4>@movie.Title</h4>
+                                            <div class="movie-meta">
+                                                <span class="rating">
+                                                    <i class="fas fa-star"></i>
+                                                    @movie.AverageRating.ToString("0.0")
+                                                </span>
+                                                <span>@movie.ReleaseDate?.Year</span>
+                                            </div>
+                                            <div class="movie-actions">
+                                                <a href="/Movie/Details/@movie.MovieId" class="btn btn-sm btn-primary">
+                                                    <i class="fas fa-play"></i>
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                    <button class="carousel-btn next" onclick="scrollCarousel('suggestedCarousel', 1)">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- Rating Modal -->
+<div class="modal fade" id="ratingModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Rate "@Model.Title"</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="ratingForm">
+                    <input type="hidden" id="ratingMovieId" value="@Model.MovieId" />
+                    <div class="mb-3">
+                        <label for="ratingUserName" class="form-label">Your Name</label>
+                        <input type="text" class="form-control" id="ratingUserName" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Rating</label>
+                        <div class="star-rating">
+                            <i class="fas fa-star" data-rating="1"></i>
+                            <i class="fas fa-star" data-rating="2"></i>
+                            <i class="fas fa-star" data-rating="3"></i>
+                            <i class="fas fa-star" data-rating="4"></i>
+                            <i class="fas fa-star" data-rating="5"></i>
+                        </div>
+                        <input type="hidden" id="ratingValue" value="" />
+                    </div>
+                    <button type="submit" class="btn btn-primary">Submit Rating</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modals Container -->
+<div class="modal fade" id="movieModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <!-- Modal content will be loaded here -->
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/movie-app.js"></script>
+    <script src="~/js/movie-details.js"></script>
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/netflix-style.css">
+    <link rel="stylesheet" href="~/css/movie-details.css">
+}

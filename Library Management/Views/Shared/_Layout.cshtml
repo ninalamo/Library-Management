@@ -1,53 +1,91 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - Library_Management</title>
+    <title>@ViewData["Title"]</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
-
+    @await RenderSectionAsync("Styles", required: false)
 </head>
 
 <body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+    <header class="netflix-header">
+        <nav class="navbar navbar-expand-lg navbar-dark">
             <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Library_Management</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
+                <a class="navbar-brand netflix-brand" asp-area="" asp-controller="Movie" asp-action="Index">
+                    <i class="fas fa-film"></i> CineStream
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
+                <div class="navbar-collapse collapse">
+                    <ul class="navbar-nav me-auto">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                            <a class="nav-link" asp-area="" asp-controller="Movie" asp-action="Index">Home</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                            <a class="nav-link" asp-area="" asp-controller="Movie" asp-action="Featured">Featured</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-controller="Movie" asp-action="Trending">Trending</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-controller="Movie" asp-action="TopRated">Top Rated</a>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                Genres
+                            </a>
+                            <ul class="dropdown-menu netflix-dropdown">
+                                <li><a class="dropdown-item" href="/?genre=Action">Action</a></li>
+                                <li><a class="dropdown-item" href="/?genre=Comedy">Comedy</a></li>
+                                <li><a class="dropdown-item" href="/?genre=Drama">Drama</a></li>
+                                <li><a class="dropdown-item" href="/?genre=Horror">Horror</a></li>
+                                <li><a class="dropdown-item" href="/?genre=Sci-Fi">Sci-Fi</a></li>
+                                <li><a class="dropdown-item" href="/?genre=Romance">Romance</a></li>
+                                <li><a class="dropdown-item" href="/?genre=Thriller">Thriller</a></li>
+                            </ul>
                         </li>
                     </ul>
+                    <div class="d-flex align-items-center">
+                        <div class="nav-search me-3">
+                            <i class="fas fa-search"></i>
+                        </div>
+                        <div class="nav-profile">
+                            <i class="fas fa-user-circle"></i>
+                        </div>
+                    </div>
                 </div>
             </div>
         </nav>
     </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
+    
+    <main>
+        @RenderBody()
+    </main>
 
-    <footer class="border-top footer text-muted">
+    <footer class="netflix-footer">
         <div class="container">
-            &copy; 2025 - Library_Management - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            <div class="row">
+                <div class="col-md-8">
+                    <p>&copy; 2025 CineStream - Your Ultimate Movie Destination</p>
+                </div>
+                <div class="col-md-4 text-end">
+                    <div class="footer-links">
+                        <a href="#">Privacy Policy</a>
+                        <a href="#">Terms of Service</a>
+                        <a href="#">Contact</a>
+                    </div>
+                </div>
+            </div>
         </div>
     </footer>
+    
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
