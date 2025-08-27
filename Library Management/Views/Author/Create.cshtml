@@ -1,0 +1,133 @@
+@model Library_Management.Models.AddAuthorViewModel
+
+@{
+    ViewData["Title"] = "Add New Author";
+}
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h3><i class="fas fa-user-plus"></i> Add New Author</h3>
+                        <a asp-action="Index" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left"></i> Back to Authors
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Create" method="post">
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="Name" class="form-label">
+                                        <i class="fas fa-user"></i> Name *
+                                    </label>
+                                    <input asp-for="Name" class="form-control" placeholder="Enter author's full name" />
+                                    <span asp-validation-for="Name" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="BirthDate" class="form-label">
+                                        <i class="fas fa-birthday-cake"></i> Birth Date *
+                                    </label>
+                                    <input asp-for="BirthDate" class="form-control" type="date" />
+                                    <span asp-validation-for="BirthDate" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="mb-3">
+                                    <label asp-for="ProfileImageUrl" class="form-label">
+                                        <i class="fas fa-image"></i> Profile Image URL
+                                    </label>
+                                    <input asp-for="ProfileImageUrl" class="form-control" placeholder="https://example.com/image.jpg" />
+                                    <span asp-validation-for="ProfileImageUrl" class="text-danger"></span>
+                                    <div class="form-text">Optional: Enter a URL to the author's profile image</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="Biography" class="form-label">
+                                <i class="fas fa-user-circle"></i> Biography
+                            </label>
+                            <textarea asp-for="Biography" class="form-control" rows="4" placeholder="Enter a brief biography of the author..."></textarea>
+                            <span asp-validation-for="Biography" class="text-danger"></span>
+                            <div class="form-text">Optional: Brief description about the author</div>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a asp-action="Index" class="btn btn-secondary">
+                                <i class="fas fa-times"></i> Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Create Author
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    
+    <script>
+        // Preview profile image
+        document.getElementById('ProfileImageUrl').addEventListener('blur', function() {
+            const url = this.value;
+            if (url) {
+                // Create a preview element if it doesn't exist
+                let preview = document.getElementById('image-preview');
+                if (!preview) {
+                    preview = document.createElement('div');
+                    preview.id = 'image-preview';
+                    preview.className = 'mt-2';
+                    this.parentNode.appendChild(preview);
+                }
+                
+                // Add image preview
+                preview.innerHTML = `
+                    <small class="text-muted">Preview:</small><br>
+                    <img src="${url}" alt="Profile Preview" class="rounded-circle" 
+                         style="width: 80px; height: 80px; object-fit: cover;" 
+                         onerror="this.style.display='none'; this.nextSibling.style.display='block';">
+                    <span style="display: none;" class="text-danger small">Unable to load image from URL</span>
+                `;
+            }
+        });
+
+        // Auto-calculate age based on birth date
+        document.getElementById('BirthDate').addEventListener('change', function() {
+            const birthDate = new Date(this.value);
+            const today = new Date();
+            
+            if (birthDate > today) {
+                // Show warning for future dates
+                let warning = document.getElementById('date-warning');
+                if (!warning) {
+                    warning = document.createElement('div');
+                    warning.id = 'date-warning';
+                    warning.className = 'form-text text-warning';
+                    this.parentNode.appendChild(warning);
+                }
+                warning.textContent = 'Warning: Birth date is in the future';
+            } else {
+                // Remove warning if exists
+                const warning = document.getElementById('date-warning');
+                if (warning) {
+                    warning.remove();
+                }
+            }
+        });
+    </script>
+}

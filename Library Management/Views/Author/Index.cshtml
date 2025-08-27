@@ -1,0 +1,104 @@
+@model IEnumerable<Library_Management.Models.AuthorListViewModel>
+
+@{
+    ViewData["Title"] = "Authors";
+}
+
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="fas fa-users"></i> Authors</h2>
+        <div>
+            <a asp-action="Create" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Add New Author
+            </a>
+            <a asp-action="Archive" class="btn btn-secondary">
+                <i class="fas fa-archive"></i> View Archive
+            </a>
+        </div>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <div class="row">
+        @foreach (var author in Model)
+        {
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <div class="d-flex align-items-start">
+                            @if (!string.IsNullOrEmpty(author.ProfileImageUrl))
+                            {
+                                <img src="@author.ProfileImageUrl" alt="@author.Name" class="rounded-circle me-3" style="width: 60px; height: 60px; object-fit: cover;">
+                            }
+                            else
+                            {
+                                <div class="bg-secondary rounded-circle me-3 d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                                    <i class="fas fa-user text-white"></i>
+                                </div>
+                            }
+                            <div class="flex-grow-1">
+                                <h5 class="card-title">@author.Name</h5>
+                                <p class="text-muted small">
+                                    <i class="fas fa-birthday-cake"></i> @author.FormattedBirthDate
+                                    @if (author.Age > 0)
+                                    {
+                                        <span>(Age @author.Age)</span>
+                                    }
+                                </p>
+                                <p class="text-muted small">
+                                    <i class="fas fa-book"></i> @author.BooksStatus
+                                </p>
+                            </div>
+                        </div>
+                        
+                        @if (!string.IsNullOrEmpty(author.Biography))
+                        {
+                            <p class="card-text mt-3">
+                                @(author.Biography.Length > 100 ? author.Biography.Substring(0, 100) + "..." : author.Biography)
+                            </p>
+                        }
+                    </div>
+                    <div class="card-footer bg-transparent">
+                        <div class="btn-group w-100" role="group">
+                            <a asp-action="Details" asp-route-id="@author.AuthorId" class="btn btn-outline-primary btn-sm">
+                                <i class="fas fa-eye"></i> View
+                            </a>
+                            <a asp-action="Edit" asp-route-id="@author.AuthorId" class="btn btn-outline-secondary btn-sm">
+                                <i class="fas fa-edit"></i> Edit
+                            </a>
+                            <a asp-action="Delete" asp-route-id="@author.AuthorId" class="btn btn-outline-danger btn-sm">
+                                <i class="fas fa-trash"></i> Delete
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="text-center py-5">
+            <i class="fas fa-users fa-3x text-muted mb-3"></i>
+            <h4 class="text-muted">No Authors Found</h4>
+            <p class="text-muted">Get started by adding your first author.</p>
+            <a asp-action="Create" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Add New Author
+            </a>
+        </div>
+    }
+</div>
