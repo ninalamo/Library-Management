@@ -1,0 +1,154 @@
+@model Library_Management.Models.AuthorDetailsViewModel
+
+@{
+    ViewData["Title"] = $"Author - {Model.Name}";
+}
+
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a asp-action="Index">Authors</a></li>
+                <li class="breadcrumb-item active">@Model.Name</li>
+            </ol>
+        </nav>
+        <div>
+            <a asp-action="Edit" asp-route-id="@Model.AuthorId" class="btn btn-outline-primary">
+                <i class="fas fa-edit"></i> Edit
+            </a>
+            <a asp-action="Delete" asp-route-id="@Model.AuthorId" class="btn btn-outline-danger">
+                <i class="fas fa-trash"></i> Delete
+            </a>
+        </div>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body text-center">
+                    @if (!string.IsNullOrEmpty(Model.ProfileImageUrl))
+                    {
+                        <img src="@Model.ProfileImageUrl" alt="@Model.Name" class="rounded-circle mb-3" style="width: 150px; height: 150px; object-fit: cover;">
+                    }
+                    else
+                    {
+                        <div class="bg-secondary rounded-circle mb-3 mx-auto d-flex align-items-center justify-content-center" style="width: 150px; height: 150px;">
+                            <i class="fas fa-user fa-3x text-white"></i>
+                        </div>
+                    }
+                    <h3>@Model.Name</h3>
+                    <p class="text-muted">
+                        <i class="fas fa-birthday-cake"></i> @Model.FormattedBirthDate
+                        @if (Model.Age > 0)
+                        {
+                            <span>(Age @Model.Age)</span>
+                        }
+                    </p>
+                    <div class="mt-3">
+                        <span class="badge bg-primary fs-6">
+                            <i class="fas fa-book"></i> @Model.ActiveBooksCount Active / @Model.TotalBooksCount Total
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-8">
+            @if (!string.IsNullOrEmpty(Model.Biography))
+            {
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5><i class="fas fa-user-circle"></i> Biography</h5>
+                    </div>
+                    <div class="card-body">
+                        <p>@Model.Biography</p>
+                    </div>
+                </div>
+            }
+
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5><i class="fas fa-books"></i> Books by @Model.Name</h5>
+                    <a asp-controller="Book" asp-action="Create" asp-route-authorId="@Model.AuthorId" class="btn btn-primary btn-sm">
+                        <i class="fas fa-plus"></i> Add New Book
+                    </a>
+                </div>
+                <div class="card-body">
+                    @if (Model.Books.Any())
+                    {
+                        <div class="row">
+                            @foreach (var book in Model.Books)
+                            {
+                                <div class="col-lg-6 mb-3">
+                                    <div class="card h-100">
+                                        @if (!string.IsNullOrEmpty(book.CoverImageUrl))
+                                        {
+                                            <img src="@book.CoverImageUrl" class="card-img-top" alt="@book.Title" style="height: 200px; object-fit: cover;">
+                                        }
+                                        else
+                                        {
+                                            <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                                                <i class="fas fa-book fa-3x text-muted"></i>
+                                            </div>
+                                        }
+                                        <div class="card-body d-flex flex-column">
+                                            <h6 class="card-title">@book.Title</h6>
+                                            <p class="card-text small text-muted">@book.Genre</p>
+                                            <p class="card-text small">
+                                                @if (book.Description != null && book.Description.Length > 80)
+                                                {
+                                                    @(book.Description.Substring(0, 80) + "...")
+                                                }
+                                                else
+                                                {
+                                                    @book.Description
+                                                }
+                                            </p>
+                                            <div class="mt-auto">
+                                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                                    <small class="text-muted">
+                                                        <i class="fas fa-copy"></i> @book.TotalCopies copies
+                                                    </small>
+                                                    <small class="text-muted">
+                                                        <i class="fas fa-check-circle text-success"></i> @book.AvailableCopies available
+                                                    </small>
+                                                </div>
+                                                <div class="btn-group w-100" role="group">
+                                                    <a asp-controller="Book" asp-action="Details" asp-route-id="@book.BookId" class="btn btn-outline-primary btn-sm">
+                                                        <i class="fas fa-eye"></i> View
+                                                    </a>
+                                                    <a asp-controller="Book" asp-action="Edit" asp-route-id="@book.BookId" class="btn btn-outline-secondary btn-sm">
+                                                        <i class="fas fa-edit"></i> Edit
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-4">
+                            <i class="fas fa-book fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">No Books Yet</h5>
+                            <p class="text-muted">This author doesn't have any books in the library.</p>
+                            <a asp-controller="Book" asp-action="Create" asp-route-authorId="@Model.AuthorId" class="btn btn-primary">
+                                <i class="fas fa-plus"></i> Add First Book
+                            </a>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

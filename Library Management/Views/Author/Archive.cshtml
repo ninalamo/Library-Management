@@ -1,0 +1,147 @@
+@model IEnumerable<Library_Management.Models.AuthorListViewModel>
+
+@{
+    ViewData["Title"] = "Archived Authors";
+}
+
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2><i class="fas fa-archive"></i> Archived Authors</h2>
+            <p class="text-muted">Authors that have been archived and are hidden from main listings</p>
+        </div>
+        <a asp-action="Index" class="btn btn-outline-primary">
+            <i class="fas fa-arrow-left"></i> Back to Active Authors
+        </a>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (Model.Any())
+    {
+        <div class="row">
+            @foreach (var author in Model)
+            {
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card h-100 border-warning">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <span class="badge bg-warning text-dark">
+                                    <i class="fas fa-archive"></i> Archived
+                                </span>
+                            </div>
+                            
+                            <div class="d-flex align-items-start">
+                                @if (!string.IsNullOrEmpty(author.ProfileImageUrl))
+                                {
+                                    <img src="@author.ProfileImageUrl" alt="@author.Name" class="rounded-circle me-3 opacity-75" style="width: 60px; height: 60px; object-fit: cover;">
+                                }
+                                else
+                                {
+                                    <div class="bg-secondary rounded-circle me-3 d-flex align-items-center justify-content-center opacity-75" style="width: 60px; height: 60px;">
+                                        <i class="fas fa-user text-white"></i>
+                                    </div>
+                                }
+                                <div class="flex-grow-1">
+                                    <h5 class="card-title text-muted">@author.Name</h5>
+                                    <p class="text-muted small">
+                                        <i class="fas fa-birthday-cake"></i> @author.FormattedBirthDate
+                                        @if (author.Age > 0)
+                                        {
+                                            <span>(Age @author.Age)</span>
+                                        }
+                                    </p>
+                                    <p class="text-muted small">
+                                        <i class="fas fa-book"></i> @author.BooksStatus
+                                    </p>
+                                </div>
+                            </div>
+                            
+                            @if (!string.IsNullOrEmpty(author.Biography))
+                            {
+                                <p class="card-text mt-3 text-muted">
+                                    @(author.Biography.Length > 100 ? author.Biography.Substring(0, 100) + "..." : author.Biography)
+                                </p>
+                            }
+                        </div>
+                        <div class="card-footer bg-transparent">
+                            <div class="btn-group w-100" role="group">
+                                <a asp-action="Details" asp-route-id="@author.AuthorId" class="btn btn-outline-info btn-sm">
+                                    <i class="fas fa-eye"></i> View
+                                </a>
+                                <form asp-action="Restore" asp-route-id="@author.AuthorId" method="post" class="d-inline">
+                                    <button type="submit" class="btn btn-outline-success btn-sm" onclick="return confirm('Are you sure you want to restore this author? They will appear in the main author listings again.')">
+                                        <i class="fas fa-undo"></i> Restore
+                                    </button>
+                                </form>
+                                <a asp-action="Delete" asp-route-id="@author.AuthorId" class="btn btn-outline-danger btn-sm">
+                                    <i class="fas fa-trash"></i> Delete Permanently
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <div class="mt-4">
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle"></i>
+                <strong>Note:</strong> Archived authors are hidden from main listings but their books remain accessible. 
+                You can restore an author to make them visible again, or permanently delete them if they are no longer needed.
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="text-center py-5">
+            <i class="fas fa-archive fa-3x text-muted mb-3"></i>
+            <h4 class="text-muted">No Archived Authors</h4>
+            <p class="text-muted">There are currently no archived authors. When you archive authors, they will appear here.</p>
+            <a asp-action="Index" class="btn btn-primary">
+                <i class="fas fa-users"></i> View Active Authors
+            </a>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        // Add confirmation for restore action
+        document.querySelectorAll('form[action*="Restore"] button').forEach(button => {
+            button.addEventListener('click', function(e) {
+                const authorName = this.closest('.card').querySelector('.card-title').textContent.trim();
+                
+                if (!confirm(`Are you sure you want to restore "${authorName}"?\n\nThey will appear in the main author listings again.`)) {
+                    e.preventDefault();
+                    return false;
+                }
+                
+                // Prevent double submission
+                this.disabled = true;
+                this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Restoring...';
+            });
+        });
+
+        // Add loading states for other buttons
+        document.querySelectorAll('a[href*="Delete"]').forEach(link => {
+            link.addEventListener('click', function() {
+                this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading...';
+            });
+        });
+    </script>
+}
