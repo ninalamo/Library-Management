@@ -1,10 +1,18 @@
-﻿using Library_Management.Models;
+﻿using Library_Management.Data;
+using Library_Management.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Library_Management.Controllers
 {
     public class BookController : Controller
     {
+        public readonly LibraryDbContext _dbContext;
+
+        public BookController(LibraryDbContext libraryDbContext)
+        {
+            _dbContext = libraryDbContext;
+        }
+
         public IActionResult Index()
         {
             var books = BookService.Instance.GetBooks();

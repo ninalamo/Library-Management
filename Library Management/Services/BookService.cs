@@ -1,8 +1,10 @@
-﻿using Library_Management.Models;
+﻿using Library_Management.Data;
+using Library_Management.Models;
 using Library_Management_Domain.Entities;
 
 public class BookService
 {
+    private readonly LibraryDbContext _dbContext = new LibraryDbContext();
     private readonly ICollection<Book> _books = new List<Book>();
     private readonly ICollection<Author> _authors = new List<Author>();
     private readonly ICollection<BookCopy> _bookCopies = new List<BookCopy>();
@@ -45,6 +47,7 @@ public class BookService
             Book = book1
         };
 
+        _dbContext.Books.Add(book1);
         author1.Books.Add(book1);
 
         // === Second Book ===
