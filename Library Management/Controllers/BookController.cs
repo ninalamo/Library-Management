@@ -7,6 +7,7 @@ namespace Library_Management.Controllers
     public class BookController : Controller
     {
         public readonly LibraryDbContext _dbContext;
+        public readonly IBookService _bookService;
 
         public BookController(LibraryDbContext libraryDbContext)
         {
@@ -15,7 +16,7 @@ namespace Library_Management.Controllers
 
         public IActionResult Index()
         {
-            var books = BookService.Instance.GetBooks();
+            var books = _bookService.GetBooks();
             return View(books);
         }
 
