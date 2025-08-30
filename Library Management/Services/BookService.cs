@@ -1,13 +1,12 @@
 ﻿using Library_Management.Models;
 using Library_Management_Domain.Entities;
-
-public class BookService
+public class BookService : IBookService
 {
     private readonly ICollection<Book> _books = new List<Book>();
     private readonly ICollection<Author> _authors = new List<Author>();
     private readonly ICollection<BookCopy> _bookCopies = new List<BookCopy>();
 
-    private BookService()
+    public BookService()
     {
         SeedData();
     }
@@ -259,7 +258,7 @@ public class BookService
             ISBN = b.ISBN,
             Description = b.Description,
             Genre = b.Genre,
-            
+
             PublishedDate = b.PublishedDate,
             CoverImageUrl = _bookCopies.FirstOrDefault(bi => bi.Book.Id == b.Id)?.CoverImageUrl,
             AuthorName = _authors.FirstOrDefault(a => a.Books.Any(bk => bk.Id == b.Id))?.Name,
@@ -289,7 +288,7 @@ public class BookService
         return editBookViewModel ?? throw new KeyNotFoundException("Book not found");
     }
 
-    internal void UpdateBook(EditBookViewModel vm)
+    public void UpdateBook(EditBookViewModel vm)
     {
         ArgumentNullException.ThrowIfNull(vm, nameof(vm));
 
@@ -299,7 +298,7 @@ public class BookService
         book.Description = vm.Description;
         book.Genre = vm.Genre;
         book.PublishedDate = vm.PublishedDate;
-        
+
 
         var author = _authors.FirstOrDefault(a => a.Id == vm.AuthorId);
         if (author == null)
@@ -353,20 +352,6 @@ public class BookService
         foreach (var bookCopy in bookCopies)
         {
             _bookCopies.Remove(bookCopy);
-        }
-    }
-
-    // Singleton pattern
-    private static BookService? _instance;
-    public static BookService Instance
-    {
-        get
-        {
-            if (_instance == null)
-            {
-                _instance = new BookService();
-            }
-            return _instance;
         }
     }
 }

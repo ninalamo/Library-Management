@@ -3,11 +3,18 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Library_Management.Controllers
 {
-    public class BookController : Controller
+    public class BookController : Controller //var bookController = new BookController(new BookService());
     {
+        private readonly IBookService _bookService;
+
+        public BookController(IBookService bookService)
+        {
+            _bookService = bookService;
+        }
+
         public IActionResult Index()
         {
-            var books = BookService.Instance.GetBooks();
+            var books =_bookService.GetBooks();
             return View(books);
         }
 
@@ -19,7 +26,7 @@ namespace Library_Management.Controllers
      
         public IActionResult EditModal(Guid id)
         {
-            var editBookViewModel = BookService.Instance.GetBookById(id);
+            var editBookViewModel =_bookService.GetBookById(id);
             if (editBookViewModel == null) return NotFound();
 
           
@@ -36,7 +43,7 @@ namespace Library_Management.Controllers
             }
 
             // Assuming BookService has a method to update the book
-            BookService.Instance.UpdateBook(vm);
+           _bookService.UpdateBook(vm);
 
             return Ok();
         }
@@ -51,13 +58,13 @@ namespace Library_Management.Controllers
         public IActionResult Delete(Guid id)
         {
             // Assuming BookService has a method to delete the book
-            BookService.Instance.DeleteBook(id);
+           _bookService.DeleteBook(id);
             return Ok();
         }
 
         public IActionResult Details(Guid id)
         {
-            var book = BookService.Instance.GetBooks().First(b => b.BookId == id);
+            var book =_bookService.GetBooks().First(b => b.BookId == id);
             return View(book);
         }
 
