@@ -16,6 +16,10 @@ namespace Library_Management_Domain.Entities
         public string? Genre { get;set; } = default!;
         public DateTime? PublishedDate { get; set; } = default!;
 
+        public bool IsArchived { get; set; }
+
+        public ICollection<BookCopy> Copies { get; set; } = new List<BookCopy>();
+
     }
 
     public class BookCopy
@@ -42,5 +46,7 @@ namespace Library_Management_Domain.Entities
         public string? ProfileImageUrl { get; set; } = default!;
 
         public List<Book> Books { get; set; } = [];
+
+        public bool IsArchived { get; set; }
     }
 }
