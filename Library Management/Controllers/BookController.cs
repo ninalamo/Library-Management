@@ -11,18 +11,34 @@ namespace Library_Management.Controllers
             return View(books);
         }
 
-        public IActionResult Add()
+        public IActionResult AddModal()
         {
-            return View();
+            return PartialView("_AddBookPartial");
         }
 
-     
+
+        [HttpPost]
+        public IActionResult Add(AddBookViewModel vm)
+        {
+            if (!ModelState.IsValid)
+            {
+                // If model state is not valid, you can return a view with validation errors
+                return BadRequest(ModelState);
+            }
+
+            // Assuming BookService has a method to update the book
+            BookService.Instance.AddBook(vm);
+
+            return Ok();
+        }
+
+
         public IActionResult EditModal(Guid id)
         {
             var editBookViewModel = BookService.Instance.GetBookById(id);
             if (editBookViewModel == null) return NotFound();
 
-          
+
             return PartialView("_EditBookPartial", editBookViewModel);
         }
 
@@ -41,24 +57,24 @@ namespace Library_Management.Controllers
             return Ok();
         }
 
-        public IActionResult DeleteModal(Guid id)
+        [HttpGet]
+        public IActionResult Delete(Guid? id)
         {
-            
-            return PartialView("_DeletePartial");
-        }
+            if (id == null)
+            {
+                return BadRequest("Book ID is required.");
+            }
 
-        [HttpDelete]
-        public IActionResult Delete(Guid id)
-        {
-            // Assuming BookService has a method to delete the book
-            BookService.Instance.DeleteBook(id);
-            return Ok();
-        }
+            // This line will return null if no book is found,
+            // which is why the next check is crucial.
+            var book = BookService.Instance.GetBookById(id.Value);
 
-        public IActionResult Details(Guid id)
-        {
-            var book = BookService.Instance.GetBooks().First(b => b.BookId == id);
-            return View(book);
+            if (book == null)
+            {
+                return NotFound("Book not found.");
+            }
+
+            return PartialView("_DeleteBookPartial", book);
         }
 
 
